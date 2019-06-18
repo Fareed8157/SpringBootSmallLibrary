@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <title>Bootstrap Example</title>
+ <div th:replace="app/headerImports"></div>
+</head>
+<body>
+
+	<div th:replace="app/navbar"></div>
+	<div class="container">
+
+		<div class="container">
+			<div class="jumbotron">
+				<h1>Here all books available in library !</h1>
+			</div>
+		</div>
+
+		<table class="table table-hover">
+			<tr>
+				<th>Book Title</th>
+				<th>Authors</th>
+				<th>Release Date</th>
+				<th>Publisher</th>
+				<th>Stock</th>
+			</tr>
+			<tr th:each="book : ${books}">
+				<td th:text="${book.bookTitle}"></td>
+				<td th:text="${book.authors}"></td>
+				<td th:text="${#dates.format(book.publishDate, 'dd MMM yyyy')}"></td>
+				<td th:text="${book.publisher}"></td>
+				<td th:text="${book.stock}"></td>
+			</tr>
+		</table>
+
+	</div>
+
+
+</body>
+</html>

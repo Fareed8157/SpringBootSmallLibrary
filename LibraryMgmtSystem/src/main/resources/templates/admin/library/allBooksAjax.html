@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<div th:replace="admin/headerImports"></div>
+</head>
+<body>
+	<div th:replace="admin/navbar"></div>
+	<div class="container">
+
+		<div class="container">
+			<div class="jumbotron">
+				<h1>Here all books available in library !</h1>
+			</div>
+		</div>
+		<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}"
+			th:value="${_csrf.token}" />
+		<div class="form-group">
+			<label for="usr">Search by book title:</label> <input type="text" id="searchBox"
+				class="form-control">
+		</div>
+		<table class="table table-hover">
+
+			<tr>
+				<th>Book Title</th>
+				<th>Authors</th>
+				<th>Release Date</th>
+				<th>Publisher</th>
+				<th>Stock</th>
+				<th>Edit</th>
+				<th>Delete</th>
+			</tr>
+			<tbody id="booksTableData">
+
+			</tbody>
+
+		</table>
+
+	</div>
+
+
+</body>
+<script type="text/javascript">
+	var searchRequest = null;
+
+	$(function() {
+		var minlength = 3;
+
+		$("#searchBox").keyup(function() {
+			var that = this, value = $(this).val();
+
+			if (value.length >= minlength) {
+				if (searchRequest != null)
+					searchRequest.abort();
+
+				searchRequest = sendRequest(value, that);
+			} else {
+				sendRequest(null, null);
+			}
+		});
+	});
+
+	function sendRequest(value, that) {
+		var csrfToken = $('#csrfToken').val();
+		$
+				.ajax({
+					type : "GET",
+					url : "booksasjson",
+					data : {
+						'search_keyword' : value
+					},
+					dataType : "text",
+					success : function(resp) {
+						//we need to check if the value is the same
+						if (value == $(that).val()) {
+							var json = JSON.parse(resp);
+							$('#booksTableData').html('');
+							$(json)
+									.each(
+											function(index, item) {
+												var publishdate = new Date(
+														item.publishDate);
+												$('#booksTableData')
+														.append(
+																'<tr>' + '<td>'
+																		+ item.bookTitle
+																		+ '</td>'
+																		+ '<td>'
+																		+ item.authors
+																		+ '</td>'
+																		+ '<td>'
+																		+ publishdate
+																		+ '</td>'
+																		+ '<td>'
+																		+ item.publisher
+																		+ '</td>'
+																		+ '<td>'
+																		+ item.stock
+																		+ '</td>'
+																		+ '<td>'
+																		+ '<form method="get"'
+																+ 'action="/admin/library/editbookinfo/' + item.isbin + '">'
+																		+ '<input class="btn btn-success"'
+																	+'type="submit" value="Edit Info" />'
+																		+ '</form>'
+																		+ '</td>'
+																		+ '<td>'
+																		+ '<form method="post"'
+																+ 'action="/admin/library/deletebook/' + item.isbin + '">'
+																		+ '<input type="hidden" id="csrfToken" name="_csrf" value="' + csrfToken + '">'
+																		+ '<input class="btn btn-danger"'
+																	+'type="submit" value="Remove Book" />'
+																		+ '</form>'
+																		+ '</td>'
+																		+ '</tr>');
+											});
+						}
+					}
+				});
+	}
+	$(function() {
+		sendRequest(null, null);
+	});
+</script>
+</html>
